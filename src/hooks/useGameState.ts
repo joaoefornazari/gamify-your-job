@@ -8,6 +8,9 @@ const defaultState: GameState = {
     name: "JWolf",
     level: 7,
     total_xp: 0,
+    title: "System Stabilizer",
+    next_level_xp_threshold: 0,
+    cosmetics: [],
   },
   stats: {
     knowledge: { xp: 0, level: 0 },
@@ -15,7 +18,7 @@ const defaultState: GameState = {
     delivery: { xp: 0, level: 0 },
     product_sense: { xp: 0, level: 0 },
     ownership: { xp: 0, level: 0 },
-	alignment: { xp: 0, level: 0 },
+	  alignment: { xp: 0, level: 0 },
   },
   missions: [],
   rewards: [],
@@ -48,7 +51,7 @@ export function useGameState() {
         m.id === missionId
           ? {
               ...m,
-              status: "completed",
+              status: "finished" as const,
               xp_awarded: xp,
               stat_distribution: stats,
             }
