@@ -15,7 +15,7 @@ export type Stats = Record<StatKey, Stat>;
 
 export interface Mission {
   id: string;
-  priority: 1 | 2 | 3 | 4 | 5;
+  priority: number;
   title: string;
   description: string;
   notes: string;
@@ -43,9 +43,9 @@ export interface GameState {
     name: string;
     level: number;
     total_xp: number;
-	title: string;
-	next_level_xp_threshold: number;
-	cosmetics: Cosmetic[];
+	  title: string;
+	  next_level_xp_threshold: number;
+	  cosmetics: Cosmetic[];
   };
   stats: Stats;
   missions: Mission[];
