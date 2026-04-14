@@ -49,7 +49,9 @@ function normalizeMission(value: unknown): Mission | null {
     title: typeof value.title === "string" ? value.title : "Untitled mission",
     description:
       typeof value.description === "string" ? value.description : "",
-    notes: typeof value.notes === "string" ? value.notes : "",
+    notes: Array.isArray(value.notes)
+      ? value.notes.filter((note): note is string => typeof note === "string")
+      : [],
     date: typeof value.date === "string" ? value.date : new Date().toISOString(),
     status:
       value.status === "in progress" ||

@@ -18,7 +18,7 @@ export interface Mission {
   priority: number;
   title: string;
   description: string;
-  notes: string;
+  notes: string[];
   date: string;
   status: "in progress" | "finished" | "ready" | "split";
   xp_awarded?: number;
