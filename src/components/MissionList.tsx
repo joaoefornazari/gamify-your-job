@@ -108,6 +108,25 @@ export default function MissionList({
                     <p className="max-w-4xl text-xs leading-6 text-slate-300">
                       {mission.description || "No description added yet."}
                     </p>
+
+                    <ul className="grid gap-2">
+                      {mission.notes.length > 0 ? (
+                        mission.notes.map((note, index) => (
+                          <li
+                            key={`${mission.id}-note-${index}`}
+                            className="flex items-start gap-2 text-xs leading-6 text-slate-400"
+                          >
+                            <span className="mt-2 h-2 w-2 p-1 rounded-full bg-cyan-400" />
+                            <span className="ml-2">{note}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="flex items-start gap-2 text-xs leading-6 text-slate-500">
+                          <span className="mt-2 h-2 w-2 rounded-full bg-slate-600" />
+                          <span>No notes added yet.</span>
+                        </li>
+                      )}
+                    </ul>
                   </div>
 
                   <div className="flex flex-row flex-wrap rounded-2xl border border-white/10 bg-white/5 p-4 sm:grid-cols-2 lg:min-w-64">
