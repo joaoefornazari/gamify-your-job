@@ -89,7 +89,7 @@ export default function MissionList({ missions, onComplete }: Props) {
 
                   <div className="flex flex-row flex-wrap rounded-2xl border border-white/10 bg-white/5 p-4 sm:grid-cols-2 lg:min-w-64">
                     <MetaItem label="Priority" value={`P${mission.priority}`} />
-                    <MetaItem label="Date" value={formatDate(mission.date)} />
+                    <MetaItem label="Date" value={mission.date} />
                   </div>
                 </div>
 
@@ -167,20 +167,6 @@ function MetaItem({ label, value }: MetaItemProps) {
       <p className="mt-2 text-sm font-medium text-white">{value}</p>
     </div>
   );
-}
-
-function formatDate(date: string) {
-  const parsedDate = new Date(date);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return "Unknown";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(parsedDate);
 }
 
 function getStatusClasses(status: Mission["status"]) {
