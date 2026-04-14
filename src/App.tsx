@@ -44,7 +44,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="grid flex-1 gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)]">
+      <main className="flex flex-col gap-6">
         <div className="flex flex-col gap-6">
           <CharacterSheet state={state} />
           <ImportExport state={state} onImport={setState} />
