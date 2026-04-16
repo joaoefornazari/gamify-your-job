@@ -10,15 +10,20 @@ interface Props {
     xp: number,
     stats: Partial<Record<StatKey, number>>
   ) => void;
+  onClearFinishedAndSplit: () => void;
 }
 
 export default function MissionList({
   missions,
   onToggleInProgress,
   onComplete,
+  onClearFinishedAndSplit,
 }: Props) {
   const [activeMissionId, setActiveMissionId] = useState<string | null>(null);
   const [input, setInput] = useState("");
+  const clearableMissionCount = missions.filter(
+    (mission) => mission.status === "finished" || mission.status === "split"
+  ).length;
 
   function handleSubmit(missionId: string) {
     try {
@@ -50,9 +55,19 @@ export default function MissionList({
           </p>
         </div>
 
-        <span className="text-sm text-slate-400">
-          {missions.length} mission{missions.length === 1 ? "" : "s"}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-slate-400">
+            {missions.length} mission{missions.length === 1 ? "" : "s"}
+          </span>
+          <button
+            type="button"
+            onClick={onClearFinishedAndSplit}
+            disabled={clearableMissionCount === 0}
+            className="action-secondary disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Clear finished / split
+          </button>
+        </div>
       </div>
 
       {missions.length === 0 ? (

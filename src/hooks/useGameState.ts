@@ -254,6 +254,16 @@ export function useGameState() {
     });
   }
 
+  function clearFinishedAndSplitMissions() {
+    rawSetState((prev) => ({
+      ...prev,
+      missions: prev.missions.filter(
+        (mission) =>
+          mission.status !== "finished" && mission.status !== "split"
+      ),
+    }));
+  }
+
   function setState(nextState: GameState) {
     rawSetState(normalizeGameState(nextState));
   }
@@ -268,6 +278,7 @@ export function useGameState() {
     addMission,
     toggleMissionInProgress,
     completeMission,
+    clearFinishedAndSplitMissions,
     importState,
     setState,
   };

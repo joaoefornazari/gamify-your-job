@@ -5,8 +5,14 @@ import MissionList from "./components/MissionList";
 import { useGameState } from "./hooks/useGameState";
 
 export default function App() {
-  const { state, addMission, toggleMissionInProgress, completeMission, importState } =
-    useGameState();
+  const {
+    state,
+    addMission,
+    toggleMissionInProgress,
+    completeMission,
+    clearFinishedAndSplitMissions,
+    importState,
+  } = useGameState();
 
   const readyCount = state.missions.filter(
     (mission) => mission.status === "ready"
@@ -51,6 +57,7 @@ export default function App() {
             missions={state.missions}
             onToggleInProgress={toggleMissionInProgress}
             onComplete={completeMission}
+            onClearFinishedAndSplit={clearFinishedAndSplitMissions}
           />
         </div>
       </main>
