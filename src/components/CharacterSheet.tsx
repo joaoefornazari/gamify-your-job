@@ -26,6 +26,7 @@ export default function CharacterSheet({ state }: Props) {
 
           <div
             id="character-sheet-metrics"
+            data-testid="character-metrics"
             className="grid gap-3 sm:grid-cols-3 md:min-w-[332px]"
           >
             <MetricCard label="Level" value={character.level} />
