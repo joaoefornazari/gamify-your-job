@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faScroll } from "@fortawesome/free-solid-svg-icons";
 import CharacterSheet from "./components/CharacterSheet";
 import ImportExport from "./components/ImportExport";
 import MissionForm from "./components/MissionForm";
@@ -27,6 +29,11 @@ export default function App() {
         <div className="flex flex-col gap-6">
           <div className="space-y-4">
             <span className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+              <FontAwesomeIcon
+                icon={faScroll}
+                className="mr-2"
+                data-testid="quest-board-icon"
+              />
               Quest Board
             </span>
 

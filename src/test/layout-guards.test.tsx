@@ -52,6 +52,7 @@ describe("layout guard rails", () => {
       "px-4",
       "py-6"
     );
+    expect(screen.getByTestId("quest-board-icon")).toBeInTheDocument();
   });
 
   it("preserves character sheet grid structure and cosmetic item sizing", () => {
