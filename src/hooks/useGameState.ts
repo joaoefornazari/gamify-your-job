@@ -160,7 +160,7 @@ function normalizeGameState(value: unknown): GameState {
   const character = isRecord(value.character) ? value.character : {};
   const stats = isRecord(value.stats) ? value.stats : {};
 
-  return {
+  const baseState: GameState = {
     character: {
       name:
         typeof character.name === "string"
@@ -218,6 +218,8 @@ function normalizeGameState(value: unknown): GameState {
           .filter((log): log is LogEntry => log !== null)
       : fallback.week_log,
   };
+
+  return recalculateGameState(baseState);
 }
 
 function loadState(): GameState {

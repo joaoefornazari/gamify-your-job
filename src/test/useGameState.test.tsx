@@ -278,4 +278,100 @@ describe("useGameState edge cases", () => {
     });
     expect(result.current.state.rewards[0].used).toBe(true);
   });
+
+  it("recalculates level and threshold on import", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.importState({
+        ...buildState(),
+        character: {
+          name: "JWolf",
+          level: 0,
+          total_xp: 350,
+          title: "System Stabilizer",
+          next_level_xp_threshold: 999,
+          cosmetics: [],
+        },
+      });
+    });
+
+    expect(result.current.state.character.total_xp).toBe(350);
+    expect(result.current.state.character.level).toBe(2);
+    expect(result.current.state.character.next_level_xp_threshold).toBe(144);
+  });
+
+  it("updates level when completing mission crosses XP threshold", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.importState({
+        ...buildState(),
+        character: {
+          name: "JWolf",
+          level: 1,
+          total_xp: 100,
+          title: "System Stabilizer",
+          next_level_xp_threshold: 120,
+          cosmetics: [],
+        },
+        missions: [
+          {
+            id: "m-1",
+            title: "Test",
+            description: "",
+            notes: [],
+            date: "2026-04-20",
+            status: "ready",
+            priority: 1,
+            tags: [],
+          },
+        ],
+      });
+    });
+
+    act(() => {
+      result.current.completeMission("m-1", 150, { delivery: 150 });
+    });
+
+    expect(result.current.state.character.total_xp).toBe(250);
+    expect(result.current.state.character.level).toBe(2);
+  });
+
+  it("resets threshold to 0 when leveling up", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.importState({
+        ...buildState(),
+        character: {
+          name: "JWolf",
+          level: 3,
+          total_xp: 532,
+          title: "System Stabilizer",
+          next_level_xp_threshold: 172,
+          cosmetics: [],
+        },
+        missions: [
+          {
+            id: "m-1",
+            title: "Test",
+            description: "",
+            notes: [],
+            date: "2026-04-20",
+            status: "ready",
+            priority: 1,
+            tags: [],
+          },
+        ],
+      });
+    });
+
+    act(() => {
+      result.current.completeMission("m-1", 100, { delivery: 100 });
+    });
+
+    expect(result.current.state.character.total_xp).toBe(632);
+    expect(result.current.state.character.level).toBeGreaterThan(3);
+  });
 });
