@@ -13,6 +13,8 @@ export default function App() {
     toggleMissionInProgress,
     completeMission,
     clearFinishedAndSplitMissions,
+    addNoteToMission,
+    deleteNoteFromMission,
     importState,
   } = useGameState();
 
@@ -65,6 +67,8 @@ export default function App() {
             onToggleInProgress={toggleMissionInProgress}
             onComplete={completeMission}
             onClearFinishedAndSplit={clearFinishedAndSplitMissions}
+            onAddNote={addNoteToMission}
+            onDeleteNote={deleteNoteFromMission}
           />
         </div>
       </main>

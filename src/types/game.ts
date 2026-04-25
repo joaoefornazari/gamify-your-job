@@ -32,9 +32,25 @@ export interface Cosmetic {
 }
 
 export interface Reward {
-	description: string;
-	time: number;
-	used: boolean;
+  description: string;
+  time: number;
+  used: boolean;
+}
+
+export type LogAction =
+  | "note_added"
+  | "note_deleted"
+  | "mission_toggled"
+  | "mission_completed"
+  | "mission_added"
+  | "reward_spent";
+
+export interface LogEntry {
+  id: string;
+  action: LogAction;
+  missionId?: string;
+  details: Record<string, unknown>;
+  timestamp: string;
 }
 
 export interface GameState {
@@ -49,4 +65,5 @@ export interface GameState {
   stats: Stats;
   missions: Mission[];
   rewards: Reward[];
+  week_log: LogEntry[];
 }

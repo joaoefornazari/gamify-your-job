@@ -22,6 +22,7 @@ function buildState(overrides?: Partial<GameState>): GameState {
     },
     missions: [],
     rewards: [],
+    week_log: [],
     ...overrides,
   };
 }
@@ -125,5 +126,156 @@ describe("useGameState edge cases", () => {
     expect(result.current.state.missions.map((mission) => mission.title)).toEqual(
       ["First", "Second"]
     );
+  });
+
+  it("logs mission_added when adding a mission", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.addMission({
+        id: "m-new",
+        title: "New Mission",
+        description: "Test",
+        notes: [],
+        date: "2026-04-20",
+        status: "ready",
+        priority: 1,
+        tags: [],
+      });
+    });
+
+    expect(result.current.state.week_log).toHaveLength(1);
+    expect(result.current.state.week_log[0].action).toBe("mission_added");
+    expect(result.current.state.week_log[0].missionId).toBe("m-new");
+  });
+
+  it("logs mission_toggled when toggling mission status", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.setState(
+        buildState({
+          missions: [
+            {
+              id: "m-1",
+              title: "Test",
+              description: "",
+              notes: [],
+              date: "2026-04-20",
+              status: "ready",
+              priority: 1,
+              tags: [],
+            },
+          ],
+        })
+      );
+    });
+
+    act(() => {
+      result.current.toggleMissionInProgress("m-1");
+    });
+
+    expect(result.current.state.week_log).toHaveLength(1);
+    expect(result.current.state.week_log[0].action).toBe("mission_toggled");
+    expect(result.current.state.week_log[0].details).toMatchObject({
+      oldStatus: "ready",
+      newStatus: "in progress",
+    });
+  });
+
+  it("logs note_added when adding a note", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.setState(
+        buildState({
+          missions: [
+            {
+              id: "m-1",
+              title: "Test",
+              description: "",
+              notes: [],
+              date: "2026-04-20",
+              status: "ready",
+              priority: 1,
+              tags: [],
+            },
+          ],
+        })
+      );
+    });
+
+    act(() => {
+      result.current.addNoteToMission("m-1", "Test note");
+    });
+
+    expect(result.current.state.week_log).toHaveLength(1);
+    expect(result.current.state.week_log[0].action).toBe("note_added");
+    expect(result.current.state.week_log[0].details).toMatchObject({
+      note: "Test note",
+    });
+  });
+
+  it("logs note_deleted when deleting a note", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.setState(
+        buildState({
+          missions: [
+            {
+              id: "m-1",
+              title: "Test",
+              description: "",
+              notes: ["Note 1", "Note 2"],
+              date: "2026-04-20",
+              status: "ready",
+              priority: 1,
+              tags: [],
+            },
+          ],
+        })
+      );
+    });
+
+    act(() => {
+      result.current.deleteNoteFromMission("m-1", 0);
+    });
+
+    expect(result.current.state.week_log).toHaveLength(1);
+    expect(result.current.state.week_log[0].action).toBe("note_deleted");
+    expect(result.current.state.week_log[0].details).toMatchObject({
+      noteIndex: 0,
+      deletedNote: "Note 1",
+    });
+  });
+
+  it("logs reward_spent when spending a reward", () => {
+    const { result } = renderHook(() => useGameState());
+
+    act(() => {
+      result.current.setState(
+        buildState({
+          rewards: [
+            {
+              description: "Free coffee",
+              time: 3600,
+              used: false,
+            },
+          ],
+        })
+      );
+    });
+
+    act(() => {
+      result.current.spendReward(0);
+    });
+
+    expect(result.current.state.week_log).toHaveLength(1);
+    expect(result.current.state.week_log[0].action).toBe("reward_spent");
+    expect(result.current.state.week_log[0].details).toMatchObject({
+      rewardDescription: "Free coffee",
+    });
+    expect(result.current.state.rewards[0].used).toBe(true);
   });
 });

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { Mission, StatKey } from "../types/game";
 import { missionPrompt } from "../utils/prompt";
 
@@ -11,6 +13,8 @@ interface Props {
     stats: Partial<Record<StatKey, number>>
   ) => void;
   onClearFinishedAndSplit: () => void;
+  onAddNote: (missionId: string, note: string) => void;
+  onDeleteNote: (missionId: string, noteIndex: number) => void;
 }
 
 export default function MissionList({
@@ -18,9 +22,14 @@ export default function MissionList({
   onToggleInProgress,
   onComplete,
   onClearFinishedAndSplit,
+  onAddNote,
+  onDeleteNote,
 }: Props) {
   const [activeMissionId, setActiveMissionId] = useState<string | null>(null);
+  const [addingNoteMissionId, setAddingNoteMissionId] = useState<string | null>(null);
+  const [newNoteText, setNewNoteText] = useState("");
   const [input, setInput] = useState("");
+  const [deleteModal, setDeleteModal] = useState<{missionId: string; noteIndex: number} | null>(null);
   const clearableMissionCount = missions.filter(
     (mission) => mission.status === "finished" || mission.status === "split"
   ).length;
@@ -38,6 +47,26 @@ export default function MissionList({
       setInput("");
     } catch {
       alert("Invalid JSON format");
+    }
+  }
+
+  function handleAddNote(missionId: string) {
+    if (newNoteText.trim()) {
+      onAddNote(missionId, newNoteText.trim());
+      setNewNoteText("");
+      setAddingNoteMissionId(null);
+    }
+  }
+
+  function handleCancelAddNote() {
+    setNewNoteText("");
+    setAddingNoteMissionId(null);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent, missionId: string) {
+    if (e.key === "Enter" && addingNoteMissionId === missionId) {
+      e.preventDefault();
+      handleAddNote(missionId);
     }
   }
 
@@ -132,7 +161,14 @@ export default function MissionList({
                             className="flex items-start gap-2 text-xs leading-6 text-slate-400"
                           >
                             <span className="mt-2 h-2 w-2 p-1 rounded-full bg-cyan-400" />
-                            <span className="ml-2">{note}</span>
+                            <span className="ml-2 flex-1">{note}</span>
+                            <button
+                              type="button"
+                              onClick={() => setDeleteModal({missionId: mission.id, noteIndex: index})}
+                              className="text-slate-500 hover:text-red-400"
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
                           </li>
                         ))
                       ) : (
@@ -142,6 +178,45 @@ export default function MissionList({
                         </li>
                       )}
                     </ul>
+
+                    {mission.status !== "finished" && (
+                      addingNoteMissionId === mission.id ? (
+                        <div className="mt-2 flex gap-2">
+                          <input
+                            type="text"
+                            value={newNoteText}
+                            onChange={(e) => setNewNoteText(e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(e, mission.id)}
+                            placeholder="Enter note..."
+                            className="field-input flex-1"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={handleCancelAddNote}
+                            className="action-secondary"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAddNote(mission.id)}
+                            className="action-primary"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setAddingNoteMissionId(mission.id)}
+                          className="mt-2 flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300"
+                        >
+                          <FontAwesomeIcon icon={faPlus} />
+                          New note
+                        </button>
+                      )
+                    )}
                   </div>
 
                   <div className="flex flex-row flex-wrap rounded-2xl border border-white/10 bg-white/5 p-4 sm:grid-cols-2 lg:min-w-64">
@@ -213,6 +288,39 @@ export default function MissionList({
               </article>
             );
           })}
+        </div>
+      )}
+
+      {deleteModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black/60"
+          onClick={() => setDeleteModal(null)}
+        >
+          <div
+            className="rounded-2xl border border-white/20 bg-slate-900 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="mb-4 text-lg text-white">Are you sure?</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteModal(null)}
+                className="action-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onDeleteNote(deleteModal.missionId, deleteModal.noteIndex);
+                  setDeleteModal(null);
+                }}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>

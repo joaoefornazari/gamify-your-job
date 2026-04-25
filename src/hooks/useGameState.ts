@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { GameState, Mission, Reward, StatKey } from "../types/game";
+import type { GameState, Mission, Reward, StatKey, LogEntry, LogAction } from "../types/game";
 import { recalculateGameState } from "../utils/recalculate";
 
 const STORAGE_KEY = "rpg_state";
@@ -32,6 +32,7 @@ function createDefaultState(): GameState {
     },
     missions: [],
     rewards: [],
+    week_log: [],
   };
 }
 
@@ -108,6 +109,47 @@ function normalizeReward(value: unknown): Reward | null {
   };
 }
 
+function normalizeLog(value: unknown): LogEntry | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const action = value.action;
+  const validActions: LogAction[] = [
+    "note_added",
+    "note_deleted",
+    "mission_toggled",
+    "mission_completed",
+    "mission_added",
+    "reward_spent",
+  ];
+
+  return {
+    id: typeof value.id === "string" ? value.id : crypto.randomUUID(),
+    action: validActions.includes(action as LogAction)
+      ? (action as LogAction)
+      : "mission_added",
+    missionId: typeof value.missionId === "string" ? value.missionId : undefined,
+    details: isRecord(value.details) ? value.details : {},
+    timestamp:
+      typeof value.timestamp === "string" ? value.timestamp : new Date().toISOString(),
+  };
+}
+
+function createLogEntry(
+  action: LogAction,
+  details: Record<string, unknown> = {},
+  missionId?: string
+): LogEntry {
+  return {
+    id: crypto.randomUUID(),
+    action,
+    missionId,
+    details,
+    timestamp: new Date().toISOString(),
+  };
+}
+
 function normalizeGameState(value: unknown): GameState {
   const fallback = createDefaultState();
 
@@ -170,6 +212,11 @@ function normalizeGameState(value: unknown): GameState {
           .map(normalizeReward)
           .filter((reward): reward is Reward => reward !== null)
       : fallback.rewards,
+    week_log: Array.isArray(value.week_log)
+      ? value.week_log
+          .map(normalizeLog)
+          .filter((log): log is LogEntry => log !== null)
+      : fallback.week_log,
   };
 }
 
@@ -200,22 +247,35 @@ export function useGameState() {
     rawSetState((prev) => ({
       ...prev,
       missions: [...prev.missions, mission],
+      week_log: [
+        ...prev.week_log,
+        createLogEntry("mission_added", { title: mission.title }, mission.id),
+      ],
     }));
   }
 
   function toggleMissionInProgress(missionId: string) {
-    rawSetState((prev) => ({
-      ...prev,
-      missions: prev.missions.map((mission) =>
-        mission.id === missionId && mission.status !== "finished"
-          ? {
-              ...mission,
-              status:
-                mission.status === "in progress" ? "ready" : "in progress",
-            }
-          : mission
-      ),
-    }));
+    rawSetState((prev) => {
+      const mission = prev.missions.find((m) => m.id === missionId);
+      if (!mission || mission.status === "finished") {
+        return prev;
+      }
+      const newStatus = mission.status === "in progress" ? "ready" : "in progress";
+      return {
+        ...prev,
+        missions: prev.missions.map((m) =>
+          m.id === missionId ? { ...m, status: newStatus } : m
+        ),
+        week_log: [
+          ...prev.week_log,
+          createLogEntry(
+            "mission_toggled",
+            { oldStatus: mission.status, newStatus },
+            missionId
+          ),
+        ],
+      };
+    });
   }
 
   function completeMission(
@@ -224,6 +284,7 @@ export function useGameState() {
     stats: Partial<Record<StatKey, number>>
   ) {
     rawSetState((prev) => {
+      const mission = prev.missions.find((m) => m.id === missionId);
       const updatedMissions = prev.missions.map((m) =>
         m.id === missionId
           ? {
@@ -250,6 +311,14 @@ export function useGameState() {
         },
         stats: updatedStats,
         missions: updatedMissions,
+        week_log: [
+          ...prev.week_log,
+          createLogEntry(
+            "mission_completed",
+            { title: mission?.title, xp, stats },
+            missionId
+          ),
+        ],
       });
     });
   }
@@ -262,6 +331,58 @@ export function useGameState() {
           mission.status !== "finished" && mission.status !== "split"
       ),
     }));
+  }
+
+  function addNoteToMission(missionId: string, note: string) {
+    rawSetState((prev) => ({
+      ...prev,
+      missions: prev.missions.map((m) =>
+        m.id === missionId ? { ...m, notes: [...m.notes, note] } : m
+      ),
+      week_log: [
+        ...prev.week_log,
+        createLogEntry("note_added", { note }, missionId),
+      ],
+    }));
+  }
+
+  function deleteNoteFromMission(missionId: string, noteIndex: number) {
+    rawSetState((prev) => {
+      const mission = prev.missions.find((m) => m.id === missionId);
+      const deletedNote = mission?.notes[noteIndex];
+      return {
+        ...prev,
+        missions: prev.missions.map((m) =>
+          m.id === missionId
+            ? { ...m, notes: m.notes.filter((_, i) => i !== noteIndex) }
+            : m
+        ),
+        week_log: [
+          ...prev.week_log,
+          createLogEntry("note_deleted", { noteIndex, deletedNote }, missionId),
+        ],
+      };
+    });
+  }
+
+  function spendReward(rewardIndex: number) {
+    rawSetState((prev) => {
+      const reward = prev.rewards[rewardIndex];
+      if (!reward || reward.used) {
+        return prev;
+      }
+      const updatedRewards = prev.rewards.map((r, i) =>
+        i === rewardIndex ? { ...r, used: true } : r
+      );
+      return {
+        ...prev,
+        rewards: updatedRewards,
+        week_log: [
+          ...prev.week_log,
+          createLogEntry("reward_spent", { rewardDescription: reward.description }),
+        ],
+      };
+    });
   }
 
   function setState(nextState: GameState) {
@@ -279,6 +400,9 @@ export function useGameState() {
     toggleMissionInProgress,
     completeMission,
     clearFinishedAndSplitMissions,
+    addNoteToMission,
+    deleteNoteFromMission,
+    spendReward,
     importState,
     setState,
   };

@@ -34,6 +34,7 @@ const sampleState: GameState = {
   },
   missions: [sampleMission],
   rewards: [],
+  week_log: [],
 };
 
 describe("layout guard rails", () => {
@@ -84,6 +85,8 @@ describe("layout guard rails", () => {
         onToggleInProgress={vi.fn()}
         onComplete={vi.fn()}
         onClearFinishedAndSplit={vi.fn()}
+        onAddNote={vi.fn()}
+        onDeleteNote={vi.fn()}
       />
     );
 
