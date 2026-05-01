@@ -288,17 +288,17 @@ describe("useGameState edge cases", () => {
         character: {
           name: "JWolf",
           level: 0,
-          total_xp: 350,
+          total_xp: 961,
           title: "System Stabilizer",
-          next_level_xp_threshold: 999,
+          next_level_xp_threshold: 160,
           cosmetics: [],
         },
       });
     });
 
-    expect(result.current.state.character.total_xp).toBe(350);
-    expect(result.current.state.character.level).toBe(2);
-    expect(result.current.state.character.next_level_xp_threshold).toBe(144);
+    expect(result.current.state.character.total_xp).toBe(961);
+    expect(result.current.state.character.level).toBe(5);
+    expect(result.current.state.character.next_level_xp_threshold).toBe(248);
   });
 
   it("updates level when completing mission crosses XP threshold", () => {
