@@ -1,12 +1,38 @@
 import type { GameState } from "../types/game";
+import { useState } from "react";
 
 interface Props {
   state: GameState;
   onGenerateBragLog?: () => void;
+  onSpendReward: (index: number) => void;
 }
 
-export default function CharacterSheet({ state, onGenerateBragLog }: Props) {
-  const { character, stats } = state;
+export default function CharacterSheet({ state, onGenerateBragLog, onSpendReward }: Props) {
+  const { character, stats, rewards } = state;
+  const [animatingRewards, setAnimatingRewards] = useState<Set<number>>(new Set());
+  const [vanishingRewards, setVanishingRewards] = useState<Set<number>>(new Set());
+
+  function handleUseReward(index: number) {
+    onSpendReward(index);
+    setAnimatingRewards((prev) => new Set(prev).add(index));
+
+    setTimeout(() => {
+      setVanishingRewards((prev) => new Set(prev).add(index));
+    }, 2000);
+
+    setTimeout(() => {
+      setAnimatingRewards((prev) => {
+        const next = new Set(prev);
+        next.delete(index);
+        return next;
+      });
+      setVanishingRewards((prev) => {
+        const next = new Set(prev);
+        next.delete(index);
+        return next;
+      });
+    }, 2500);
+  }
 
   return (
     <section className="panel overflow-hidden px-6 py-6 sm:px-7">
@@ -43,43 +69,101 @@ export default function CharacterSheet({ state, onGenerateBragLog }: Props) {
           id="character-sheet-body"
           className="grid gap-4 xl:grid-cols-[minmax(0,1.18fr)_minmax(260px,0.82fr)]"
         >
-          <div id="character-sheet-stats-section" className="space-y-3">
-            <div
-              id="character-sheet-stats-header"
-              className="flex items-center justify-between"
-            >
-              <h3 className="text-lg font-semibold text-white">Stats</h3>
-              <span className="text-sm text-slate-400">
-                {Object.keys(stats).length} tracked traits
-              </span>
+          <div className="space-y-4">
+            <div id="character-sheet-stats-section" className="space-y-3">
+              <div
+                id="character-sheet-stats-header"
+                className="flex items-center justify-between"
+              >
+                <h3 className="text-lg font-semibold text-white">Stats</h3>
+                <span className="text-sm text-slate-400">
+                  {Object.keys(stats).length} tracked traits
+                </span>
+              </div>
+
+              <div
+                id="character-sheet-stats-grid"
+                className="grid gap-3 min-[420px]:grid-cols-2"
+              >
+                {Object.entries(stats).map(([key, stat]) => (
+                  <div
+                    key={key}
+                    id={`character-sheet-stat-card-${toIdSegment(key)}`}
+                    className="flex min-h-32 flex-col justify-between rounded-[22px] border border-white/10 bg-slate-950/60 px-4 py-4"
+                  >
+                    <div id={`character-sheet-stat-copy-${toIdSegment(key)}`}>
+                      <p className="max-w-[10ch] text-lg font-semibold leading-6 text-white">
+                        {formatStatName(key)}
+                      </p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-500">
+                        Growth
+                      </p>
+                    </div>
+
+                    <div id={`character-sheet-stat-values-${toIdSegment(key)}`} className="pt-4">
+                      <p className="text-lg font-semibold text-cyan-300">
+                        {stat.xp} XP
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div
-              id="character-sheet-stats-grid"
-              className="grid gap-3 min-[420px]:grid-cols-2"
-            >
-              {Object.entries(stats).map(([key, stat]) => (
-                <div
-                  key={key}
-                  id={`character-sheet-stat-card-${toIdSegment(key)}`}
-                  className="flex min-h-32 flex-col justify-between rounded-[22px] border border-white/10 bg-slate-950/60 px-4 py-4"
-                >
-                  <div id={`character-sheet-stat-copy-${toIdSegment(key)}`}>
-                    <p className="max-w-[10ch] text-lg font-semibold leading-6 text-white">
-                      {formatStatName(key)}
-                    </p>
-                    <p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-500">
-                      Growth
-                    </p>
-                  </div>
+            <div id="character-sheet-rewards-section" className="space-y-3">
+              <div
+                id="character-sheet-rewards-header"
+                className="flex items-center justify-between"
+              >
+                <h3 className="text-lg font-semibold text-white">Rewards</h3>
+                <span className="text-sm text-slate-400">
+                  {rewards.filter((r) => !r.used).length} available
+                </span>
+              </div>
 
-                  <div id={`character-sheet-stat-values-${toIdSegment(key)}`} className="pt-4">
-                    <p className="text-lg font-semibold text-cyan-300">
-                      {stat.xp} XP
-                    </p>
-                  </div>
-                </div>
-              ))}
+              <div id="character-sheet-rewards-list" className="space-y-2">
+                {rewards.map((reward, index) => {
+                  if (reward.used && !animatingRewards.has(index)) {
+                    return null;
+                  }
+
+                  const isAnimating = animatingRewards.has(index);
+                  const isVanishing = vanishingRewards.has(index);
+
+                  return (
+                    <div
+                      key={index}
+                      id={`character-sheet-reward-${index}`}
+                      className={`flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3 transition-opacity duration-500 ${
+                        isVanishing ? "opacity-0" : "opacity-100"
+                      }`}
+                    >
+                      <div className="flex-1">
+                        {isAnimating ? (
+                          <p className="text-sm font-semibold text-cyan-300">
+                            Reward Used! Congratulations! 🎉
+                          </p>
+                        ) : (
+                          <>
+                            <p className="text-sm text-white">{reward.description}</p>
+                            <p className="text-xs text-slate-400">
+                              {reward.time} min
+                            </p>
+                          </>
+                        )}
+                      </div>
+                      {!isAnimating && !reward.used && (
+                        <button
+                          onClick={() => handleUseReward(index)}
+                          className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-400/20"
+                        >
+                          Use reward?
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

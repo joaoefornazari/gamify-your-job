@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import App from "../App";
 import CharacterSheet from "../components/CharacterSheet";
 import MissionList from "../components/MissionList";
-import type { GameState, Mission } from "../types/game";
+import type { GameState, Mission, Reward } from "../types/game";
 
 const sampleMission: Mission = {
   id: "mission-1",
@@ -108,5 +109,69 @@ describe("layout guard rails", () => {
       "border",
       "p-4"
     );
+  });
+
+  it("displays rewards section with available rewards", () => {
+    const stateWithRewards: GameState = {
+      ...sampleState,
+      rewards: [
+        { description: "Free coffee", time: 15, used: false },
+        { description: "Late arrival", time: 30, used: false },
+      ] as Reward[],
+    };
+
+    render(
+      <CharacterSheet
+        state={stateWithRewards}
+        onSpendReward={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("Rewards")).toBeInTheDocument();
+    expect(screen.getByText("Free coffee")).toBeInTheDocument();
+    expect(screen.getByText("15 min")).toBeInTheDocument();
+    expect(screen.getAllByText("Use reward?").length).toBe(2);
+  });
+
+  it("calls onSpendReward when Use reward? is clicked", async () => {
+    const user = userEvent.setup();
+    const onSpendReward = vi.fn();
+    const stateWithRewards: GameState = {
+      ...sampleState,
+      rewards: [
+        { description: "Free coffee", time: 15, used: false },
+      ] as Reward[],
+    };
+
+    render(
+      <CharacterSheet
+        state={stateWithRewards}
+        onSpendReward={onSpendReward}
+      />
+    );
+
+    await user.click(screen.getByText("Use reward?"));
+    expect(onSpendReward).toHaveBeenCalledWith(0);
+  });
+
+  it("shows Reward Used message after clicking Use reward?", async () => {
+    const user = userEvent.setup();
+    const onSpendReward = vi.fn();
+    const stateWithRewards: GameState = {
+      ...sampleState,
+      rewards: [
+        { description: "Free coffee", time: 15, used: false },
+      ] as Reward[],
+    };
+
+    render(
+      <CharacterSheet
+        state={stateWithRewards}
+        onSpendReward={onSpendReward}
+      />
+    );
+
+    await user.click(screen.getByText("Use reward?"));
+    expect(screen.getByText("Reward Used! Congratulations! 🎉")).toBeInTheDocument();
   });
 });

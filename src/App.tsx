@@ -16,6 +16,7 @@ export default function App() {
     clearFinishedAndSplitMissions,
     addNoteToMission,
     deleteNoteFromMission,
+    spendReward,
     importState,
   } = useGameState();
 
@@ -63,7 +64,7 @@ export default function App() {
 
       <main className="flex flex-col gap-6">
         <div className="flex flex-col gap-6">
-          <CharacterSheet state={state} onGenerateBragLog={handleGenerateBragLog} />
+          <CharacterSheet state={state} onGenerateBragLog={handleGenerateBragLog} onSpendReward={spendReward} />
           <ImportExport state={state} onImport={importState} />
         </div>
 
