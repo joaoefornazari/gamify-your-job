@@ -173,7 +173,7 @@ export default function CharacterSheet({ state, onGenerateBragLog, onSpendReward
           >
             <div
               id="character-sheet-cosmetics-layout"
-              className="flex h-full flex-col justify-between gap-5"
+              className="flex flex-col justify-between gap-5"
             >
               <div id="character-sheet-cosmetics-copy" className="space-y-2">
                 <p className="field-label">Cosmetics</p>
