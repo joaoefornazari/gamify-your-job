@@ -15,6 +15,7 @@ interface Props {
   onClearFinishedAndSplit: () => void;
   onAddNote: (missionId: string, note: string) => void;
   onDeleteNote: (missionId: string, noteIndex: number) => void;
+  onGenerateBragLog?: () => void;
 }
 
 export default function MissionList({
@@ -24,6 +25,7 @@ export default function MissionList({
   onClearFinishedAndSplit,
   onAddNote,
   onDeleteNote,
+  onGenerateBragLog,
 }: Props) {
   const [activeMissionId, setActiveMissionId] = useState<string | null>(null);
   const [addingNoteMissionId, setAddingNoteMissionId] = useState<string | null>(null);
@@ -288,6 +290,20 @@ export default function MissionList({
               </article>
             );
           })}
+        </div>
+      )}
+
+      {onGenerateBragLog && (
+        <div className="pt-4 space-y-2">
+          <p className="text-xs leading-6 text-slate-300">
+            Have you already finished your week? Get a prompt and ask your LLM of choice to generate a senior-level brag log about your week's achievements.
+          </p>
+          <button
+            onClick={onGenerateBragLog}
+            className="mt-2 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/20"
+          >
+            Generate Brag Log
+          </button>
         </div>
       )}
 

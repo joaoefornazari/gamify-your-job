@@ -64,7 +64,7 @@ export default function App() {
 
       <main className="flex flex-col gap-6">
         <div className="flex flex-col gap-6">
-          <CharacterSheet state={state} onGenerateBragLog={handleGenerateBragLog} onSpendReward={spendReward} />
+          <CharacterSheet state={state} onSpendReward={spendReward} />
           <ImportExport state={state} onImport={importState} />
         </div>
 
@@ -77,6 +77,7 @@ export default function App() {
             onClearFinishedAndSplit={clearFinishedAndSplitMissions}
             onAddNote={addNoteToMission}
             onDeleteNote={deleteNoteFromMission}
+            onGenerateBragLog={handleGenerateBragLog}
           />
         </div>
       </main>

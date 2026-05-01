@@ -1,13 +1,11 @@
-import type { GameState } from "../types/game";
 import { useState } from "react";
 
 interface Props {
-  state: GameState;
-  onGenerateBragLog?: () => void;
-  onSpendReward: (index: number) => void;
+  state: ReturnType<typeof useGameState>["state"];
+  onSpendReward: (xp: number, stats: Partial<Record<StatKey, number>>) => void;
 }
 
-export default function CharacterSheet({ state, onGenerateBragLog, onSpendReward }: Props) {
+export default function CharacterSheet({ state, onSpendReward }: Props) {
   const { character, stats, rewards } = state;
   const [animatingRewards, setAnimatingRewards] = useState<Set<number>>(new Set());
   const [vanishingRewards, setVanishingRewards] = useState<Set<number>>(new Set());
@@ -211,19 +209,9 @@ export default function CharacterSheet({ state, onGenerateBragLog, onSpendReward
              </div>
            </div>
 
-           {onGenerateBragLog && (
-             <div className="pt-4">
-               <button
-                 onClick={onGenerateBragLog}
-                 className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/20"
-               >
-                 Generate week brag log
-               </button>
-             </div>
-           )}
-         </div>
-       </div>
-     </section>
+            </div>
+        </div>
+      </section>
   );
 }
 
