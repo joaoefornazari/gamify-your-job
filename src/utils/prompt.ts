@@ -1,4 +1,4 @@
-import type { Mission } from "../types/game";
+import type { GameState, Mission } from "../types/game";
 
 export function missionPrompt(mission: Mission): string {
   return `You are the Game Master of a personal RPG system called "JWolf RPG".
@@ -67,4 +67,48 @@ Description: ${mission.description}
 (Optional context)
 Priority: ${mission.priority}
 Notes: <anything relevant>`;
+}
+
+export function bragLogPrompt(state: GameState): string {
+  const { character, week_log, missions } = state;
+
+  const missionMap = new Map(missions.map((m) => [m.id, m]));
+
+  const logDetails = week_log
+    .map((entry) => {
+      const mission = entry.missionId ? missionMap.get(entry.missionId) : undefined;
+      const missionTitle = mission?.title ?? "Unknown mission";
+
+      const actionLabels: Record<string, string> = {
+        note_added: "added a note",
+        note_deleted: "deleted a note",
+        mission_toggled: "toggled mission status",
+        mission_completed: "completed a mission",
+        mission_added: "added a new mission",
+        reward_spent: "spent a reward",
+      };
+
+      return `- [${entry.timestamp}] ${actionLabels[entry.action] ?? entry.action} → "${missionTitle}"${entry.details ? ` | ${JSON.stringify(entry.details)}` : ""}`;
+    })
+    .join("\n");
+
+  return `You are a senior engineer writing a weekly brag log for performance reviews and career growth.
+
+## Context
+- Character: ${character.name} (Level ${character.level}, ${character.total_xp} XP)
+- Week logs (all mission activity this week):
+${logDetails || "No week logs recorded yet."}
+
+## Instructions
+Write a senior-level weekly brag log based on the week logs above. Focus on **impact**, not just task listing.
+
+For each completed mission or meaningful action:
+- Describe the business or user impact
+- Highlight technical complexity or ownership demonstrated
+- Mention collaboration, decision-making, or product thinking where relevant
+- Use strong action verbs (shipped, delivered, resolved, optimized, etc.)
+
+The tone should be confident, concise, and results-oriented — suitable for a senior engineer's weekly update to leadership.
+
+Output ONLY the brag log text, no extra commentary.`;
 }

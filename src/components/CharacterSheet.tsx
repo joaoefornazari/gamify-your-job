@@ -2,9 +2,10 @@ import type { GameState } from "../types/game";
 
 interface Props {
   state: GameState;
+  onGenerateBragLog?: () => void;
 }
 
-export default function CharacterSheet({ state }: Props) {
+export default function CharacterSheet({ state, onGenerateBragLog }: Props) {
   const { character, stats } = state;
 
   return (
@@ -122,12 +123,23 @@ export default function CharacterSheet({ state }: Props) {
                     Cosmetic vault is empty
                   </span>
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+               </div>
+             </div>
+           </div>
+
+           {onGenerateBragLog && (
+             <div className="pt-4">
+               <button
+                 onClick={onGenerateBragLog}
+                 className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/20"
+               >
+                 Generate week brag log
+               </button>
+             </div>
+           )}
+         </div>
+       </div>
+     </section>
   );
 }
 

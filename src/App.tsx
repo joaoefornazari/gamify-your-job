@@ -5,6 +5,7 @@ import ImportExport from "./components/ImportExport";
 import MissionForm from "./components/MissionForm";
 import MissionList from "./components/MissionList";
 import { useGameState } from "./hooks/useGameState";
+import { bragLogPrompt } from "./utils/prompt";
 
 export default function App() {
   const {
@@ -17,6 +18,12 @@ export default function App() {
     deleteNoteFromMission,
     importState,
   } = useGameState();
+
+  function handleGenerateBragLog() {
+    const prompt = bragLogPrompt(state);
+    navigator.clipboard.writeText(prompt);
+    alert("Brag log prompt copied to clipboard!");
+  }
 
   const readyCount = state.missions.filter(
     (mission) => mission.status === "ready"
@@ -56,7 +63,7 @@ export default function App() {
 
       <main className="flex flex-col gap-6">
         <div className="flex flex-col gap-6">
-          <CharacterSheet state={state} />
+          <CharacterSheet state={state} onGenerateBragLog={handleGenerateBragLog} />
           <ImportExport state={state} onImport={importState} />
         </div>
 
