@@ -222,7 +222,7 @@ export default function MissionList({
 
                   <div className="flex flex-row flex-wrap rounded-2xl border border-white/10 bg-white/5 p-4 sm:grid-cols-2 lg:min-w-64">
                     <MetaItem label="Priority" value={`P${mission.priority}`} />
-                    <MetaItem label="Date" value={mission.date} />
+                    <MetaItem label="Date" value={new Date(mission.date).toLocaleDateString()} />
                   </div>
                 </div>
 
@@ -238,17 +238,16 @@ export default function MissionList({
                 {canComplete ? (
                   <div className="grid gap-4 rounded-2xl border border-white/10 bg-slate-900/55 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-xs leading-6 text-slate-300">
-                        Mark a mission as in progress or paste the completion
-                        JSON payload when it is ready to be resolved.
+                      <p className="text-sm leading-6 text-slate-300">
+                        Finished?
                       </p>
 
                       <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                         <button
                           type="button"
-                          className="action-secondary w-full sm:w-auto"
+                          className="action-secondary w-full sm:w-auto cursor-pointer"
                           onClick={() => handleCopyPrompt(mission)}>
-                          Copy Prompt
+                          Ask LLM for completion response
                         </button>
 
                         <button
@@ -256,9 +255,9 @@ export default function MissionList({
                           onClick={() =>
                             setActiveMissionId(isActive ? null : mission.id)
                           }
-                          className="action-secondary w-full sm:w-auto"
+                          className="action-secondary w-full sm:w-auto cursor-pointer"
                         >
-                          {isActive ? "Hide reward input" : "Complete mission"}
+                          {isActive ? "Cancel" : "Finish mission!"}
                         </button>
                       </div>
                     </div>
@@ -277,9 +276,9 @@ export default function MissionList({
                           <button
                             type="button"
                             onClick={() => handleSubmit(mission.id)}
-                            className="action-primary w-full sm:w-auto"
+                            className="action-primary w-full sm:w-auto cursor-pointer"
                           >
-                            Confirm rewards
+                            Confirm and gain XP!
                           </button>
                         </div>
                       </div>
