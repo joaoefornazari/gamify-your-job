@@ -76,13 +76,12 @@ export default function MissionList({
     <section className="panel flex h-full flex-col gap-6 px-6 py-6 sm:px-7">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
-          <p className="field-label">Mission Log</p>
+          <p className="field-label">Your tasks, your</p>
           <h2 className="text-xl font-semibold tracking-tight text-white">
-            Current quests
+            Week Missions
           </h2>
           <p className="max-w-2xl text-xs leading-6 text-slate-300">
-            Review the backlog, paste reward payloads, and keep completion flow
-            contained inside each mission card.
+            Toggle mission status as you work on them, and use prompt button and Complete Mission to finish them and get your rewards!
           </p>
         </div>
 
@@ -96,7 +95,7 @@ export default function MissionList({
             disabled={clearableMissionCount === 0}
             className="action-secondary disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Clear finished / split
+            New week!
           </button>
         </div>
       </div>
