@@ -16,7 +16,7 @@ export default function ImportExport({ state, onImport }: Props) {
     a.href = url;
     const datetime = new Date().toLocaleString().replaceAll(/\D/g, '-');
 
-    a.download = `rpg-save-${datetime}.json`;
+    a.download = `save-file-${datetime}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
