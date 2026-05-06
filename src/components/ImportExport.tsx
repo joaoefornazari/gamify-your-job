@@ -14,7 +14,9 @@ export default function ImportExport({ state, onImport }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "rpg-save.json";
+    const datetime = new Date().toLocaleString().replaceAll(/\D/g, '-');
+
+    a.download = `rpg-save-${datetime}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
