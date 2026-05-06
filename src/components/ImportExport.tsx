@@ -42,13 +42,13 @@ export default function ImportExport({ state, onImport }: Props) {
     <section className="panel px-6 py-5 sm:px-7">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-2">
-          <p className="field-label">Save Data</p>
+          <p className="field-label">Save/Load your Data</p>
           <h2 className="text-xl font-semibold tracking-tight text-white">
-            Import or export progress
+            Save progress or load previous save file
           </h2>
           <p className="text-sm text-gray-400">
-            Move your save file between devices without breaking the layout or
-            losing track of your current mission state.
+            Load any gamified task tracking. Load the JSON and work on your missions!
+            Do not forget to save your progress as you go so you don't lose progress.
           </p>
         </div>
 
@@ -56,13 +56,13 @@ export default function ImportExport({ state, onImport }: Props) {
           <button
             type="button"
             onClick={handleExport}
-            className="action-secondary w-full sm:w-auto text-align-left"
+            className="action-secondary w-full sm:w-auto text-align-left cursor-pointer"
           >
-            Export save
+            Save data
           </button>
 
           <label className="action-primary w-full sm:w-auto text-align-left cursor-pointer">
-            <span style={{ textAlign: "center" }}>Import save</span>
+            <span style={{ textAlign: "left" }}>Load data</span>
             <input
               type="file"
               accept="application/json,.json"
